@@ -1,21 +1,17 @@
-from classy_fastapi import get
+from typing import Annotated
+
+from fastapi import Depends
 
 from ..controllers.health import HealthController
-from ..core.base import Routable
+from ..core.routing import AppRouter, get
 
 
-class HealthRoutable(Routable):
-    """
-    Routable class for health check endpoints.
-    """
-    controller: HealthController
+class HealthRoutable(AppRouter):
+    controller: Annotated[HealthController, Depends()]
 
     @get("/")
-    def root(self):
-        return self.controller.check_health()
+    async def get_health_status(self):
+        return await self.controller.check_health()
 
 
-routable = HealthRoutable(
-    controller=HealthController(),
-    prefix="/health"
-)
+routable = HealthRoutable(prefix="/health")

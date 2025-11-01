@@ -77,22 +77,6 @@ files = [
 ]
 
 [[package]]
-name = "classy-fastapi"
-version = "0.7.0"
-description = "Class based routing for FastAPI"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "classy_fastapi-0.7.0-py3-none-any.whl", hash = "sha256:eea211181d065fecb543d68b75a6a6ab93393bb7ca48551887fa898ba7d40ec3"},
-    {file = "classy_fastapi-0.7.0.tar.gz", hash = "sha256:4ab934fc309b134cd8dde5f7d6f98e1303a111cf1341ebd5bf900a630d20b084"},
-]
-
-[package.dependencies]
-fastapi = ">=0.73.0,<1.0.0"
-pydantic = ">=2.8,<3.0.0"
-
-[[package]]
 name = "click"
 version = "8.3.0"
 description = "Composable command line interface toolkit"
@@ -1884,4 +1868,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "a10fcf6355dfaa47b8454f060b91a77982638eec3b3a5c04557861e40a517d32"
+content-hash = "fc08911df19ddd9054be41597357a660913540b51c26042a5b3fcdf409dd71ce"

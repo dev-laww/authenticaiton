@@ -1,14 +1,13 @@
 from enum import Enum
 from typing import Optional, Type, Any, Sequence, Union, List, Dict, Callable, Set
 
-from classy_fastapi.decorators import SetIntStr, DictIntStrAny, AnyCallable
 from fastapi import params
 from fastapi.datastructures import Default
 from h11 import Response
 from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute
 
-from .dto import RouteMetadata
+from .dto import RouteMetadata, SetIntStr, DictIntStrAny, AnyCallable
 from ..constants import Constants
 
 

@@ -1,11 +1,10 @@
 from typing import Any
 
-from classy_fastapi import Routable
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from .core import settings
-from .core.routing import FileRouter, Extractor, RouterMetadata
+from .core.routing import FileRouter, Extractor, RouterMetadata, AppRouter
 
 
 class AppRouteExtractor(Extractor):
@@ -17,7 +16,7 @@ class AppRouteExtractor(Extractor):
 
         routable = getattr(module, "routable")
 
-        if not isinstance(routable, Routable):
+        if not isinstance(routable, AppRouter):
             return routers
 
         router = routable.router
