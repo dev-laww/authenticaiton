@@ -10,6 +10,7 @@ from starlette.routing import BaseRoute
 from .dto import RouteMetadata, SetIntStr, DictIntStrAny, AnyCallable
 from ..constants import Constants
 
+# TODO: add websocket route support
 
 def route(
     path: str,
