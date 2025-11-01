@@ -19,7 +19,7 @@ class AppRouteExtractor(Extractor):
         if not isinstance(routable, AppRouter):
             return routers
 
-        router = routable.router
+        router = routable.http_router
 
         routers.append(RouterMetadata(router=router))
 

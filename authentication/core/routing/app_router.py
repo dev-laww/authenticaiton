@@ -179,7 +179,7 @@ class AppRouter(AppObject):
         include_in_schema: bool = True,
         **kwargs
     ):
-        self.router = APIRouter(
+        self.http_router = APIRouter(
             prefix=prefix,
             tags=tags,
             dependencies=dependencies,
@@ -271,7 +271,7 @@ class AppRouter(AppObject):
             # Create a wrapped endpoint with dependency injection
             wrapped_endpoint = self._wrap_endpoint(method, dependencies)
 
-            self.router.add_api_route(
+            self.http_router.add_api_route(
                 endpoint=wrapped_endpoint,
                 **dataclasses.asdict(meta)
             )
