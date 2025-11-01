@@ -1,17 +1,58 @@
 import importlib
+import inspect
 import sys
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from logging import getLogger
 from pathlib import Path
 from typing import Any, Optional
 
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter
 from fastapi.routing import APIRoute
-from starlette.routing import Router
 
 from .dto import RouterMetadata
 from .extractor import Extractor, DefaultExtractor
+
+
+def _resolve_base_path(base_path: str, relative_to: Optional[str] = None) -> Path:
+    """
+    Resolve the base path, handling relative paths intelligently.
+
+    Args:
+        base_path: The path to resolve (can be relative or absolute)
+        relative_to: Optional file path to resolve relative paths against.
+                    If None, attempts to detect the caller's file location.
+
+    Returns:
+        Resolved absolute Path object
+    """
+    path = Path(base_path)
+
+    if path.is_absolute():
+        return path.resolve()
+
+    if relative_to:
+        base = Path(relative_to).parent.resolve()
+        return (base / path).resolve()
+
+    try:
+        frame = inspect.currentframe()
+        if frame:
+            # Skip frames within this module
+            while frame:
+                frame_info = inspect.getframeinfo(frame)
+                frame_file = frame_info.filename
+
+                # Skip this file and any __init__.py files in the routing module
+                if not frame_file.endswith(('file_router.py', 'routing/__init__.py')):
+                    caller_path = Path(frame_file).parent.resolve()
+                    resolved = (caller_path / path).resolve()
+                    return resolved
+
+                frame = frame.f_back
+    except Exception as e:
+        raise e
+
+    resolved = path.resolve()
+
+    return resolved
 
 
 class FileRouter(APIRouter):
@@ -26,8 +67,6 @@ class FileRouter(APIRouter):
         app.include_router(FileRouter("./routes"))
     """
 
-    logger = getLogger(__name__)
-
     def __init__(
         self,
         base_path: str,
@@ -37,13 +76,17 @@ class FileRouter(APIRouter):
         exclude_patterns: Optional[list[str]] = None,
         recursive: bool = True,
         extractor: Optional[Extractor] = None,
-        **kwargs
+        relative_to: Optional[str] = None,
+        **kwargs: Any
     ) -> None:
         """
         Initialize the FileRouter.
 
         Args:
-            base_path: Base directory path to search for route modules
+            base_path: Base directory path to search for route modules.
+                Can be absolute or relative. Relative paths are resolved:
+                - Relative to the calling file's directory (auto-detected)
+                - Or relative to 'relative_to' parameter if provided
             prefix: URL prefix to add to all discovered routes
             tags: Tags to add to all discovered routes
             include_patterns: List of glob patterns for files to include
@@ -51,11 +94,13 @@ class FileRouter(APIRouter):
             recursive: Whether to search subdirectories recursively
             extractor: Custom Extractor instance for discovering routers in modules.
                 If None, uses DefaultExtractor which looks for 'router' variable.
+            relative_to: Optional file path (__file__) to resolve relative base_path against.
+                If None, will attempt to auto-detect the caller's file location.
             **kwargs: Additional arguments passed to APIRouter
         """
         super().__init__(prefix=prefix, tags=tags or [], **kwargs)
 
-        self.base_path = Path(base_path).resolve()
+        self.base_path = _resolve_base_path(base_path, relative_to)
         self.include_patterns = include_patterns or ["*.py"]
         self.exclude_patterns = exclude_patterns or ["__pycache__", "*.pyc", "__init__.py"]
         self.recursive = recursive
@@ -70,8 +115,6 @@ class FileRouter(APIRouter):
         """
         Discover and register all routes from the specified directory.
         """
-        self.logger.info("Starting route discovery in: %s", self.base_path)
-
         self._discovery_stats = {
             "modules_found": 0,
             "routers_registered": 0,
@@ -80,14 +123,11 @@ class FileRouter(APIRouter):
 
         if not self.base_path.exists():
             error_msg = f"Base path does not exist: {self.base_path}"
-            self.logger.error(error_msg)
             self._discovery_stats["errors"].append(error_msg)
             return
 
         python_files = self._find_python_files()
         self._discovery_stats["modules_found"] = len(python_files)
-
-        self.logger.info("Found %d Python files to process", len(python_files))
 
         for file_path in python_files:
             try:
@@ -97,14 +137,7 @@ class FileRouter(APIRouter):
                     self._discovery_stats["errors"].extend(module_stats["errors"])
             except (ImportError, AttributeError, SyntaxError) as e:
                 error_msg = f"Error processing {file_path}: {str(e)}"
-                self.logger.error(error_msg)
                 self._discovery_stats["errors"].append(error_msg)
-
-        self.logger.info(
-            "Route discovery completed. Registered %d routers from %d modules",
-            self._discovery_stats["routers_registered"],
-            self._discovery_stats["modules_found"]
-        )
 
     def _find_python_files(self) -> list[Path]:
         """Find all Python files matching the criteria."""
@@ -159,29 +192,19 @@ class FileRouter(APIRouter):
                 try:
                     extracted_routers = self.extractor.extract(module)
 
-                    if not extracted_routers:
-                        self.logger.debug("No routers extracted from %s", full_module_name)
-
                     for router_metadata in extracted_routers:
                         if isinstance(router_metadata.router, APIRouter):
                             self._register_router(router_metadata)
                             module_stats["routers_registered"] += 1
-                            self.logger.debug(
-                                "Registered router from %s with metadata: %s",
-                                full_module_name,
-                                router_metadata.metadata
-                            )
                         else:
                             error_msg = (
                                 f"Extractor returned non-APIRouter instance "
                                 f"from {full_module_name}: {type(router_metadata.router)}"
                             )
-                            self.logger.warning(error_msg)
                             module_stats["errors"].append(error_msg)
 
                 except Exception as e:
                     error_msg = f"Extractor failed for {full_module_name}: {str(e)}"
-                    self.logger.error(error_msg)
                     module_stats["errors"].append(error_msg)
 
                 self.registered_routes.add(full_module_name)
@@ -192,7 +215,6 @@ class FileRouter(APIRouter):
 
         except (ImportError, AttributeError, SyntaxError) as e:
             error_msg = f"Error processing module {file_path}: {str(e)}"
-            self.logger.error(error_msg)
             module_stats["errors"].append(error_msg)
 
         return module_stats
@@ -228,9 +250,35 @@ class FileRouter(APIRouter):
         """
         router = router_metadata.router
 
-        self.include_router(router)
+        # Include all routes from the discovered router into this FileRouter
+        for route in router.routes:
+            if isinstance(route, APIRoute):
+                # Merge tags if both routers have them
+                route_tags = list(route.tags) if route.tags else []
+                if router.tags:
+                    route_tags = list(set(route_tags + list(router.tags)))
 
-        self.logger.debug("Registered router routes")
+                # Add the route to this FileRouter
+                self.add_api_route(
+                    path=route.path,
+                    endpoint=route.endpoint,
+                    methods=route.methods,
+                    tags=route_tags or None,
+                    summary=route.summary,
+                    description=route.description,
+                    response_model=route.response_model,
+                    status_code=route.status_code,
+                    responses=route.responses,
+                    deprecated=route.deprecated,
+                    operation_id=route.operation_id,
+                    response_model_include=route.response_model_include,
+                    response_model_exclude=route.response_model_exclude,
+                    response_model_by_alias=route.response_model_by_alias,
+                    response_model_exclude_unset=route.response_model_exclude_unset,
+                    response_model_exclude_defaults=route.response_model_exclude_defaults,
+                    response_model_exclude_none=route.response_model_exclude_none,
+                    include_in_schema=route.include_in_schema,
+                )
 
     @property
     def stats(self) -> dict[str, Any]:
