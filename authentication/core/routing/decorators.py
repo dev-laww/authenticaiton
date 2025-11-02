@@ -3,12 +3,14 @@ from typing import Optional, Type, Any, Sequence, Union, List, Dict, Callable, S
 
 from fastapi import params
 from fastapi.datastructures import Default
+from fastapi.routing import APIRoute
 from h11 import Response
 from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute
 
 from .dto import RouteMetadata, SetIntStr, DictIntStrAny, AnyCallable
 from ..constants import Constants
+
 
 # TODO: add websocket route support
 
@@ -35,6 +37,7 @@ def route(
     include_in_schema: bool = True,
     response_class: Type[Response] = Default(JSONResponse),
     name: Optional[str] = None,
+    route_class_override: Optional[Type[APIRoute]] = None,
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     **kwargs: Any
@@ -62,7 +65,7 @@ def route(
             include_in_schema=include_in_schema,
             response_class=response_class,
             name=name,
-            route_class_override=kwargs.get('route_class_override'),
+            route_class_override=route_class_override,
             callbacks=callbacks,
             openapi_extra=openapi_extra,
             **kwargs  # noqa
