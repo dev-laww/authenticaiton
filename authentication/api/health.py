@@ -9,7 +9,7 @@ from ..core.routing import AppRouter, get
 class HealthRoutable(AppRouter):
     controller: Annotated[HealthController, Depends()]
 
-    @get("/")
+    @get("")
     async def get_health_status(self):
         return await self.controller.check_health()
 
