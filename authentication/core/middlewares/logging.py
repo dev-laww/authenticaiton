@@ -15,7 +15,7 @@ logging.getLogger("uvicorn.access").disabled = True
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
-    """Middleware for logging requests """
+    """Middleware for logging requests"""
 
     async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Any:
         request_id = str(uuid4())
