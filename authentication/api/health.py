@@ -6,7 +6,7 @@ from ..controllers.health import HealthController
 from ..core.routing import AppRouter, get
 
 
-class HealthRoutable(AppRouter):
+class HealthRouter(AppRouter):
     controller: Annotated[HealthController, Depends()]
 
     @get("")
@@ -14,4 +14,4 @@ class HealthRoutable(AppRouter):
         return await self.controller.check_health()
 
 
-routable = HealthRoutable(prefix="/health")
+router = HealthRouter(prefix="/health")

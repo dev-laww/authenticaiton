@@ -16,17 +16,19 @@ class AppRouteExtractor(Extractor):
     def extract(self, module: Any) -> list[RouterMetadata]:
         routers = []
 
-        if not hasattr(module, "routable"):
+        if not hasattr(module, "router"):
+            logger.warn("Module %s has no 'router' attribute", module.__name__)
             return routers
 
-        routable = getattr(module, "routable")
+        router = getattr(module, "router")
 
-        if not isinstance(routable, AppRouter):
+        if not isinstance(router, AppRouter):
+            logger.warn("Attribute 'router' in module %s is not an instance of AppRouter", module.__name__)
             return routers
 
-        router = routable.http_router
+        http_router = router.http_router
 
-        routers.append(RouterMetadata(router=router))
+        routers.append(RouterMetadata(router=http_router))
 
         return routers
 
@@ -73,6 +75,8 @@ def create_app():
         base_path="./api",
         extractor=extractor
     )
+
+    logger.info("Registering routes from 'api' directory")
 
     # Middlewares
     setup_rate_limiting(app)

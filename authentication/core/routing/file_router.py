@@ -67,6 +67,9 @@ from fastapi.routing import APIRoute
 
 from .dto import RouterMetadata
 from .extractor import Extractor, DefaultExtractor
+from ..logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def _resolve_base_path(base_path: str, relative_to: Optional[str] = None) -> Path:
@@ -166,6 +169,8 @@ class FileRouter(APIRouter):
         self.registered_routes = set()
         self._discovery_stats = {}
 
+        logger.info(f"Initializing FileRouter with base path: {self.base_path}")
+
         # Automatically discover and register routes on initialization
         self._discover_and_register_routes()
 
@@ -196,6 +201,15 @@ class FileRouter(APIRouter):
             except (ImportError, AttributeError, SyntaxError) as e:
                 error_msg = f"Error processing {file_path}: {str(e)}"
                 self._discovery_stats["errors"].append(error_msg)
+
+        logger.info("FileRouter discovery complete")
+        logger.info(f"Modules found: {self._discovery_stats['modules_found']}")
+        logger.info(f"Routers registered: {self._discovery_stats['routers_registered']}")
+
+        if self._discovery_stats["errors"]:
+            logger.warning(f"Errors encountered: {len(self._discovery_stats['errors'])}")
+            for err in self._discovery_stats["errors"]:
+                logger.warning(f"\t- {err}")
 
     def _find_python_files(self) -> list[Path]:
         """Find all Python files matching the criteria."""
