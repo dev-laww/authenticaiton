@@ -6,12 +6,23 @@ from fastapi import params
 from fastapi.datastructures import DefaultPlaceholder, Default
 from fastapi.routing import APIRoute
 from h11 import Response
+from semver import Version
 from starlette.responses import JSONResponse
-from starlette.routing import Route
+from starlette.routing import Route, WebSocketRoute
 
 SetIntStr = Set[Union[int, str]]
 DictIntStrAny = Dict[Union[int, str], Any]
 AnyCallable = TypeVar('AnyCallable', bound=Callable[..., Any])
+
+
+@dataclass
+class VersionMetadata:
+    path: str
+    method: str
+    version: Version
+    route: Optional[Union[APIRoute, WebSocketRoute]] = None
+    removed_in: Optional[Version] = None
+    deprecated_in: Optional[Version] = None
 
 
 @dataclass
