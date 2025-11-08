@@ -101,6 +101,16 @@ class RateLimitError(AppException):
         super().__init__(message, details)
 
 
+class VersionNotSupportedError(AppException):
+    """Exception raised when API version is not supported."""
+
+    code = "VERSION_NOT_SUPPORTED_ERROR"
+    status_code = HTTPStatus.NOT_ACCEPTABLE
+
+    def __init__(self, message: str = "API version not supported", details: Any = None):
+        super().__init__(message, details)
+
+
 def setup_exception_handlers(app: FastAPI):
     """Sets up custom exception handlers for the FastAPI app."""
 

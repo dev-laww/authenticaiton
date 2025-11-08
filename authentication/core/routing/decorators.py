@@ -10,6 +10,7 @@ from semver import Version
 from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute
 
+from .app_router import AppRoute
 from .dto import RouteMetadata, SetIntStr, DictIntStrAny, AnyCallable, VersionMetadata
 from ..constants import Constants
 
@@ -61,7 +62,7 @@ def route(
     include_in_schema: bool = True,
     response_class: Type[Response] = Default(JSONResponse),
     name: Optional[str] = None,
-    route_class_override: Optional[Type[APIRoute]] = None,
+    route_class_override: Optional[Type[AppRoute]] = None,
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     version: Optional[str] = None,
@@ -70,7 +71,7 @@ def route(
     **kwargs: Any
 ):
     def decorator(method: AnyCallable):
-        parsed_version = _parse_version(version) if version else Version.parse("1.0.0")
+        parsed_version = _parse_version(version) if version else Version(1)
         parsed_deprecated_in = _parse_version(deprecated_in) if deprecated_in else None
         parsed_removed_in = _parse_version(removed_in) if removed_in else None
 

@@ -13,5 +13,9 @@ class HealthRouter(AppRouter):
     async def get_health_status(self):
         return await self.controller.check_health()
 
+    @get("", version="2")
+    async def get_health_status_v2(self):
+        return {"status": "healthy", "version": "v2"}
+
 
 router = HealthRouter(prefix="/health")
