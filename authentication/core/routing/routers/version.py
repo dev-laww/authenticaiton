@@ -17,6 +17,8 @@ from ...exceptions import VersionNotSupportedError
 from ...response import Response
 from ...utils import parse_version
 
+# TODO: Add support for version ranges (e.g., ">=1.0.0,<2.0.0")
+# TODO: Add support for method decorators (e.g., @router.get, @router.post) with versioning
 
 class VersionedRoute(APIRoute):
     """
