@@ -17,10 +17,7 @@ AnyCallable = TypeVar('AnyCallable', bound=Callable[..., Any])
 
 @dataclass
 class VersionMetadata:
-    path: str
-    method: str
     version: Version
-    route: Optional[Union[APIRoute, WebSocketRoute]] = None
     removed_in: Optional[Version] = None
     deprecated_in: Optional[Version] = None
 

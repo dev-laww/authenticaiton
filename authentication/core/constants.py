@@ -20,15 +20,17 @@ class Constants:
         r"v?(?P<major>\d+)(?:\.(?P<minor>\d+))?(?:\.(?P<patch>\d+))?"
         r"(?:-(?P<prerelease>[0-9A-Za-z.-]+))?(?:\+(?P<build>[0-9A-Za-z.-]+))?"
     )
-    
-    # Version pattern without build metadata for accept headers (to avoid matching +json)
-    SEMVER_REGEX_ACCEPT_HEADER = (
-        r"v?(?P<major>\d+)(?:\.(?P<minor>\d+))?(?:\.(?P<patch>\d+))?"
-        r"(?:-(?P<prerelease>[0-9A-Za-z.-]+))?"
-    )
 
     ACCEPT_HEADER_VERSION_REGEX = (
-        r"^application/vnd\.{vendor_prefix}\."
-        r"(?P<version>v?(?P<major>\d+)(?:\.(?P<minor>\d+))?(?:\.(?P<patch>\d+))?"
-        r"(?:-(?P<prerelease>[0-9A-Za-z.-]+))?)(?:\+json)?$"
+        r"application/vnd\.{vendor_prefix}\."
+        r"(?P<version>"
+        r"v?(?P<major>\d+)"
+        r"(?:\.(?P<minor>\d+))?"
+        r"(?:\.(?P<patch>\d+))?"
+        r"(?:-(?P<prerelease>[0-9A-Za-z.-]+))?"
+        r")"
+        r"(?:\+json)?"
+        r"(?:\s*[;,].*?)?"
     )
+
+    REQUESTED_VERSION_SCOPE_KEY = "requested_version"

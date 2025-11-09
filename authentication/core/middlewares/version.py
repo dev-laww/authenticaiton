@@ -10,9 +10,9 @@ from asgiref.typing import (
     WebSocketScope,
 )
 from fastapi import FastAPI
-from semver import Version
 
 from authentication.core import Constants
+from authentication.core.utils import parse_version
 
 
 class VersionMiddleware:
@@ -31,15 +31,19 @@ class VersionMiddleware:
     This also allows for version to be specified using the specified header key.
     """
 
-    def __init__(self, app: ASGI3Application, vendor_prefix: str, latest_version: Version = Version(1)):
+    def __init__(self, app: ASGI3Application, vendor_prefix: str):
         self.app = app
         self.vendor_prefix = vendor_prefix
-        self.latest_version = latest_version
         self.version_regex = re.compile(Constants.SEMVER_REGEX, re.VERBOSE)
         # Accept header regex with semver pattern embedded
-        self.accept_header_regex = re.compile(Constants.ACCEPT_HEADER_VERSION_REGEX.format(
-            vendor_prefix=re.escape(vendor_prefix)
-        ))
+        # Use IGNORECASE flag for case-insensitive matching and search() instead of match()
+        # Note: Using IGNORECASE only (no VERBOSE) for more reliable matching
+        self.accept_header_regex = re.compile(
+            Constants.ACCEPT_HEADER_VERSION_REGEX.format(
+                vendor_prefix=re.escape(vendor_prefix)
+            ),
+            re.IGNORECASE
+        )
 
     async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable):
         if not scope["type"] in ("http", "websocket"):
@@ -47,46 +51,20 @@ class VersionMiddleware:
 
         scope = cast(Union[HTTPScope, WebSocketScope], scope)
         headers = dict(scope.get("headers", []))
-        scope["latest_version"] = self.latest_version
-        scope["requested_version"] = self.latest_version
 
         if b"accept" in headers:
             accept_header = headers[b"accept"].decode("latin1")
-            match = self.accept_header_regex.match(accept_header)
+            # Use search() instead of match() to find the pattern anywhere in the header
+            # This handles cases where Accept header has multiple values (comma-separated)
+            match = self.accept_header_regex.search(accept_header)
 
             if match:
                 version_str = match.group("version")
-                try:
-                    # Normalize version: remove 'v' prefix and ensure minor/patch exist
-                    normalized = version_str.lstrip("v")
-                    parts = normalized.split("-", 1)
-                    version_part = parts[0]
-                    prerelease = parts[1] if len(parts) > 1 else None
-
-                    # Ensure we have at least major.minor.patch
-                    version_numbers = version_part.split(".")
-                    if len(version_numbers) == 1:
-                        version_part = f"{version_numbers[0]}.0.0"
-                    elif len(version_numbers) == 2:
-                        version_part = f"{version_numbers[0]}.{version_numbers[1]}.0"
-
-                    if prerelease:
-                        normalized = f"{version_part}-{prerelease}"
-                    else:
-                        normalized = version_part
-
-                    version = Version.parse(normalized)
-                    scope["requested_version"] = version
-                except ValueError:
-                    pass
+                scope[Constants.REQUESTED_VERSION_SCOPE_KEY] = parse_version(version_str)
 
         return await self.app(scope, receive, send)
 
 
-def setup_version_middleware(
-    app: FastAPI,
-    vendor_prefix: str,
-    latest_version: Version = Version(1)
-) -> None:
+def setup_version_middleware(app: FastAPI, vendor_prefix: str) -> None:
     """Sets up the version middleware for the ASGI application."""
-    app.add_middleware(VersionMiddleware, vendor_prefix=vendor_prefix, latest_version=latest_version)
+    app.add_middleware(VersionMiddleware, vendor_prefix=vendor_prefix)

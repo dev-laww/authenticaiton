@@ -9,7 +9,7 @@ from .core.database import db_manager
 from .core.exceptions import setup_exception_handlers
 from .core.logging import logger
 from .core.middlewares import setup_rate_limiting, setup_logging_middleware, setup_version_middleware
-from .core.routing import FileRouter, Extractor, RouterMetadata, AppRouter, AppRoute
+from .core.routing import Extractor, RouterMetadata, AppRouter
 
 
 class AppRouteExtractor(Extractor):
@@ -73,19 +73,16 @@ def create_app():
     extractor = AppRouteExtractor()
     file_router = FileRouter(
         base_path="./api",
-        extractor=extractor,
-        route_class=AppRoute
+        extractor=extractor
     )
-    print(file_router.route_class)
-    app.include_router(file_router)
 
-    logger.info("Registering routes from 'api' directory")
+    app.include_router(file_router)
 
     # Middlewares
     setup_rate_limiting(app)
     setup_logging_middleware(app)
     setup_exception_handlers(app)
-    setup_version_middleware(app, vendor_prefix="authtentication")
+    setup_version_middleware(app, vendor_prefix="authentication")
 
 
     return app
