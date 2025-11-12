@@ -2,10 +2,9 @@ import asyncio
 from logging import getLogger
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, make_url, text
-from sqlalchemy import pool
 
 from alembic import context
+from sqlalchemy import make_url, text, Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
 
@@ -82,6 +81,15 @@ async def create_database():
             logger.info(f"Database '{db_name}' already exists. Skipping creation.")
 
 
+def do_migrations(connection: Connection):
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
 async def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
@@ -97,14 +105,8 @@ async def run_migrations_online() -> None:
         future=True
     )
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata
-        )
-
-        with context.begin_transaction():
-            context.run_migrations()
+    async with connectable.connect() as connection:
+        await connection.run_sync(do_migrations)
 
 
 if context.is_offline_mode():
