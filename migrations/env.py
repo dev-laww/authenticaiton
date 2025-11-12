@@ -2,14 +2,12 @@ import asyncio
 from logging import getLogger
 from logging.config import fileConfig
 
-
 from alembic import context
 from sqlalchemy import make_url, text, Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
 
 from authentication.core import settings
-from authentication.models import *
 
 logger = getLogger(__name__)
 
@@ -64,7 +62,11 @@ async def create_database():
     db_name = url_obj.database
     admin_url = url_obj.set(database="postgres")
 
-    engine = create_async_engine(str(admin_url), isolation_level="AUTOCOMMIT", future=True)
+    engine = create_async_engine(
+        admin_url,
+        isolation_level="AUTOCOMMIT",
+        future=True
+    )
 
     async with engine.connect() as conn:
         result = await conn.execute(
