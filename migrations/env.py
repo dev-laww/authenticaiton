@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
 
 from authentication.core import settings
+from authentication.models import *  # noqa: F401, F403
 
 logger = getLogger(__name__)
 
