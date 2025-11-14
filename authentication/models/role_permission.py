@@ -2,13 +2,12 @@ import datetime
 from typing import Optional
 from uuid import UUID
 
-import sqlalchemy as sa
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field
 
-from ..core.utils import get_current_utc_datetime
+from ..core.base import BaseDBModel
 
 
-class RolePermission(SQLModel, table=True):
+class RolePermission(BaseDBModel, table=True):
     __tablename__ = "role_permissions"
 
     role_id: Optional[UUID] = Field(
@@ -17,9 +16,7 @@ class RolePermission(SQLModel, table=True):
     permission_id: Optional[UUID] = Field(
         default=None, foreign_key="permissions.id", primary_key=True
     )
-    granted_at: datetime.datetime = Field(
-        default_factory=get_current_utc_datetime,
-        sa_column=sa.Column(
-            sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
-        ),
-    )
+
+    @property
+    def granted_at(self) -> datetime.datetime:
+        return self.created_at

@@ -1,11 +1,13 @@
-from typing import TypeVar, Type, Optional, List, cast, Any
+from typing import TypeVar, Type, Optional, List, cast, Any, Callable
 from uuid import UUID
 
+from fastapi.params import Depends
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from .filters import Filter
+from .manager import db_manager
 from ..base.app import AppObject
 from ..exceptions import DatabaseError
 from ..logging import get_logger
@@ -278,3 +280,19 @@ class Repository[T](AppObject):
             raise DatabaseError(
                 f"Error checking existence of {self.model.__name__} entities"
             ) from e
+
+
+def get_repository(model: Type[T]) -> Callable[[AsyncSession], Repository[T]]:
+    """
+    Dependency injection function to get a repository instance for a given model.
+
+    :param model: The SQLModel class for which to create the repository.
+    :return: An instance of Repository for the specified model.
+    """
+
+    def init_repository(
+        session: AsyncSession = Depends(db_manager.session_dependency),
+    ) -> Repository[T]:
+        return Repository[T](session=session, model=model)
+
+    return init_repository

@@ -29,7 +29,7 @@ class Response(BaseModel):
     error: Optional[ErrorDetail] = None
 
     @classmethod
-    def success(
+    def ok(
         cls,
         message: str = "Success",
         data: Any = None,
@@ -47,16 +47,14 @@ class Response(BaseModel):
         code: str = "CREATED",
     ) -> "Response":
         """Create a 201 Created response."""
-        return cls.success(
-            message=message, data=data, status=HTTPStatus.CREATED, code=code
-        )
+        return cls.ok(message=message, data=data, status=HTTPStatus.CREATED, code=code)
 
     @classmethod
     def no_content(
         cls, message: str = "No content", code: str = "NO_CONTENT"
     ) -> "Response":
         """Create a 204 No Content response."""
-        return cls.success(message=message, status=HTTPStatus.NO_CONTENT, code=code)
+        return cls.ok(message=message, status=HTTPStatus.NO_CONTENT, code=code)
 
     @classmethod
     def failure(
