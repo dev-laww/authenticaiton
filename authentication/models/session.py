@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class Session(SQLModel, table=True):
-    __tablename__ = "accounts"
+    __tablename__ = "sessions"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     user_id: UUID = Field(foreign_key="users.id", index=True)
@@ -38,4 +38,4 @@ class Session(SQLModel, table=True):
         )
     )
 
-    user: "User" = Relationship(back_populates="accounts", sa_relationship_kwargs={"lazy": "selectin"})
+    user: "User" = Relationship(back_populates="sessions", sa_relationship_kwargs={"lazy": "selectin"})

@@ -3,12 +3,13 @@ from functools import wraps
 from typing import Optional, Any, AsyncGenerator, TypeVar, Callable, Coroutine
 
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from .base import AppObject
-from .config import settings
-from .exceptions import DatabaseError
-from .logging import get_logger
+from authentication.core.base import AppObject
+from authentication.core.config import settings
+from authentication.core.exceptions import DatabaseError
+from authentication.core.logging import get_logger
 
 logger = get_logger(__name__)
 
