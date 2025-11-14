@@ -24,8 +24,8 @@ class Response(BaseModel):
     status: int
     success: bool
     message: str
-    code: Optional[str] = None
     data: Optional[Any] = None
+    code: Optional[str] = None
     error: Optional[ErrorDetail] = None
 
     @classmethod
