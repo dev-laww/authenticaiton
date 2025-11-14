@@ -1,5 +1,5 @@
 from . import filters
-from .manager import *
+from .manager import db_manager, DatabaseManager
 from .repository import Repository
 
 __all__ = [

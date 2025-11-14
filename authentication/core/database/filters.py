@@ -123,7 +123,9 @@ class NotIn(Filter):
 
     def __init__(self, values: Union[List[Any], Tuple[Any, ...]]):
         if not isinstance(values, (list, tuple)):
-            raise ValueError(f"NotIn filter requires a list or tuple, got {type(values)}")
+            raise ValueError(
+                f"NotIn filter requires a list or tuple, got {type(values)}"
+            )
         self.values = values
 
     def apply(self, field: Column) -> Any:

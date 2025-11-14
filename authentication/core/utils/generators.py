@@ -10,6 +10,4 @@ def get_current_utc_datetime() -> datetime.datetime:
     return arrow.utcnow().datetime
 
 
-__all__ = [
-    "get_current_utc_datetime"
-]
+__all__ = ["get_current_utc_datetime"]

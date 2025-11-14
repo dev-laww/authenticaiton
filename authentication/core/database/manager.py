@@ -48,7 +48,7 @@ class DatabaseManager(AppObject):
                 class_=AsyncSession,
                 autocommit=False,
                 autoflush=False,
-                expire_on_commit=False
+                expire_on_commit=False,
             )
         except Exception as e:
             raise DatabaseError(f"Failed to initialize database: {str(e)}")
@@ -90,7 +90,9 @@ class DatabaseManager(AppObject):
             finally:
                 logger.debug("Database session closed")
 
-    def with_session(self, func: Callable[..., Coroutine[Any, Any, T]]) -> Callable[..., Coroutine[Any, Any, T]]:
+    def with_session(
+        self, func: Callable[..., Coroutine[Any, Any, T]]
+    ) -> Callable[..., Coroutine[Any, Any, T]]:
         """
         Decorator that injects a session into an async function.
         Example:

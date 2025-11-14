@@ -10,4 +10,5 @@ class Controller(AppObject, ABC):
     This class serves as a blueprint for all controller classes,
     ensuring they inherit common functionality and structure.
     """
+
     pass

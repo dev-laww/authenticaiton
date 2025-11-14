@@ -40,7 +40,9 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         status = response.status_code
         reason = HTTPStatus(status).phrase
 
-        logger.info(f"[{host} - HTTP/{http_version}] {method} {path} {reason} - {process_time_ms}ms")
+        logger.info(
+            f"[{host} - HTTP/{http_version}] {method} {path} {reason} - {process_time_ms}ms"
+        )
 
         return response
 

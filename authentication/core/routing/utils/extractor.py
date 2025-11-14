@@ -54,7 +54,7 @@ class DefaultExtractor(Extractor):
         router_var_name: The name of the variable to look for (default: 'router')
     """
 
-    def __init__(self, router_var_name: str = 'router') -> None:
+    def __init__(self, router_var_name: str = "router") -> None:
         """
         Initialize the DefaultExtractor.
 
@@ -116,16 +116,17 @@ class MultiRouterExtractor(Extractor):
         routers: list[RouterMetadata] = []
 
         for attr_name in dir(module):
-            if self.exclude_private and attr_name.startswith('_'):
+            if self.exclude_private and attr_name.startswith("_"):
                 continue
 
             try:
                 attr = getattr(module, attr_name)
                 if isinstance(attr, APIRouter):
-                    routers.append(RouterMetadata(
-                        router=attr,
-                        metadata={'variable_name': attr_name}
-                    ))
+                    routers.append(
+                        RouterMetadata(
+                            router=attr, metadata={"variable_name": attr_name}
+                        )
+                    )
             except (AttributeError, ImportError):
                 # Skip attributes that can't be accessed
                 continue

@@ -124,7 +124,7 @@ from typing import (
     get_type_hints,
 )
 
-from fastapi import APIRouter, params
+from fastapi import params
 from fastapi.datastructures import Default
 from starlette.responses import JSONResponse
 from starlette.responses import Response
@@ -139,9 +139,9 @@ except ImportError:
     # Fallback for environments without typing_inspect
     from typing import ClassVar as _ClassVar
 
-
     def is_classvar(tp):
-        return hasattr(tp, '__origin__') and tp.__origin__ is _ClassVar
+        return hasattr(tp, "__origin__") and tp.__origin__ is _ClassVar
+
 
 from ..dto import RouteMetadata
 from ...base import AppObject
@@ -188,7 +188,7 @@ class AppRouter(AppObject):
         lifespan: Optional[Lifespan[Any]] = None,
         deprecated: Optional[bool] = None,
         include_in_schema: bool = True,
-        **kwargs
+        **kwargs,
     ):
         self.http_router = VersionedRouter(
             prefix=prefix,
@@ -207,7 +207,7 @@ class AppRouter(AppObject):
             lifespan=lifespan,
             deprecated=deprecated,
             include_in_schema=include_in_schema,
-            **kwargs
+            **kwargs,
         )
         self._register_routes()
 
@@ -283,14 +283,11 @@ class AppRouter(AppObject):
             wrapped_endpoint = self._wrap_endpoint(method, dependencies)
 
             self.http_router.add_api_route(
-                endpoint=wrapped_endpoint,
-                **dataclasses.asdict(meta)
+                endpoint=wrapped_endpoint, **dataclasses.asdict(meta)
             )
 
     def _wrap_endpoint(
-        self,
-        method: Callable[..., Any],
-        dependencies: Dict[str, tuple]
+        self, method: Callable[..., Any], dependencies: Dict[str, tuple]
     ) -> Callable:
         """
         Wrap an endpoint method to handle dependency injection.
@@ -340,11 +337,13 @@ class AppRouter(AppObject):
             return method_args
 
         if is_async:
+
             @functools.wraps(method)
             async def endpoint_wrapper(**kwargs):
                 method_args = prepare_method_arguments(kwargs)
                 return await method(**method_args)
         else:
+
             @functools.wraps(method)
             def endpoint_wrapper(**kwargs):
                 method_args = prepare_method_arguments(kwargs)

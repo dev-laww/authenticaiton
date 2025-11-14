@@ -8,7 +8,11 @@ from .core import settings
 from .core.database import db_manager
 from .core.exceptions import setup_exception_handlers
 from .core.logging import logger
-from .core.middlewares import setup_rate_limiting, setup_logging_middleware, setup_version_middleware
+from .core.middlewares import (
+    setup_rate_limiting,
+    setup_logging_middleware,
+    setup_version_middleware,
+)
 from .core.routing import Extractor, RouterMetadata, AppRouter, FileRouter
 
 
@@ -23,7 +27,10 @@ class AppRouteExtractor(Extractor):
         router = getattr(module, "router")
 
         if not isinstance(router, AppRouter):
-            logger.warn("Attribute 'router' in module %s is not an instance of AppRouter", module.__name__)
+            logger.warn(
+                "Attribute 'router' in module %s is not an instance of AppRouter",
+                module.__name__,
+            )
             return routers
 
         http_router = router.http_router
@@ -61,20 +68,15 @@ def create_app():
         default_response_class=JSONResponse,
         docs_url=settings.docs_url if should_add_docs else None,
         redoc_url=settings.redoc_url if should_add_docs else None,
-        lifespan=lifespan
+        lifespan=lifespan,
     )
 
     @app.get("/")
     async def root():
-        return {
-            "message": "Authentication Service is running"
-        }
+        return {"message": "Authentication Service is running"}
 
     extractor = AppRouteExtractor()
-    file_router = FileRouter(
-        base_path="./api",
-        extractor=extractor
-    )
+    file_router = FileRouter(base_path="./api", extractor=extractor)
 
     app.include_router(file_router)
 
@@ -83,6 +85,5 @@ def create_app():
     setup_logging_middleware(app)
     setup_exception_handlers(app)
     setup_version_middleware(app, vendor_prefix="authentication")
-
 
     return app

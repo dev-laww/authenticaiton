@@ -97,7 +97,9 @@ def _resolve_base_path(base_path: str, relative_to: Optional[str] = None) -> Pat
             caller_path = Path(stack[2].filename).parent.resolve()
             return (caller_path / path).resolve()
     except Exception as e:
-        logger.warning(f"Could not auto-detect caller location: {e}. Using current working directory.")
+        logger.warning(
+            f"Could not auto-detect caller location: {e}. Using current working directory."
+        )
 
     # Fallback to current working directory
     resolved = path.resolve()
@@ -126,7 +128,7 @@ class FileRouter(APIRouter):
         recursive: bool = True,
         extractor: Optional[Extractor] = None,
         relative_to: Optional[str] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """
         Initialize the FileRouter.
@@ -151,7 +153,11 @@ class FileRouter(APIRouter):
 
         self.base_path = _resolve_base_path(base_path, relative_to)
         self.include_patterns = include_patterns or ["*.py"]
-        self.exclude_patterns = exclude_patterns or ["__pycache__", "*.pyc", "__init__.py"]
+        self.exclude_patterns = exclude_patterns or [
+            "__pycache__",
+            "*.pyc",
+            "__init__.py",
+        ]
         self.recursive = recursive
         self.extractor = extractor or DefaultExtractor()
         self.registered_routes = set()
@@ -169,7 +175,7 @@ class FileRouter(APIRouter):
         self._discovery_stats = {
             "modules_found": 0,
             "routers_registered": 0,
-            "errors": []
+            "errors": [],
         }
 
         if not self.base_path.exists():
@@ -183,7 +189,9 @@ class FileRouter(APIRouter):
         for file_path in python_files:
             try:
                 module_stats = self._process_module(file_path)
-                self._discovery_stats["routers_registered"] += module_stats["routers_registered"]
+                self._discovery_stats["routers_registered"] += module_stats[
+                    "routers_registered"
+                ]
                 if module_stats["errors"]:
                     self._discovery_stats["errors"].extend(module_stats["errors"])
             except (ImportError, AttributeError, SyntaxError) as e:
@@ -192,10 +200,14 @@ class FileRouter(APIRouter):
 
         logger.info("FileRouter discovery complete")
         logger.info(f"Modules found: {self._discovery_stats['modules_found']}")
-        logger.info(f"Routers registered: {self._discovery_stats['routers_registered']}")
+        logger.info(
+            f"Routers registered: {self._discovery_stats['routers_registered']}"
+        )
 
         if self._discovery_stats["errors"]:
-            logger.warning(f"Errors encountered: {len(self._discovery_stats['errors'])}")
+            logger.warning(
+                f"Errors encountered: {len(self._discovery_stats['errors'])}"
+            )
             for err in self._discovery_stats["errors"]:
                 logger.warning(f"\t- {err}")
 
@@ -229,10 +241,7 @@ class FileRouter(APIRouter):
 
     def _process_module(self, file_path: Path) -> dict[str, Any]:
         """Process a single Python module and register any routers found."""
-        module_stats: dict[str, Any] = {
-            "routers_registered": 0,
-            "errors": []
-        }
+        module_stats: dict[str, Any] = {"routers_registered": 0, "errors": []}
 
         try:
             module_name = file_path.stem
@@ -283,7 +292,13 @@ class FileRouter(APIRouter):
     def _find_project_root(self, file_path: Path) -> Optional[Path]:
         """Find the project root by looking for common indicators."""
         current_path = file_path.parent
-        indicators = ["pyproject.toml", "setup.py", "requirements.txt", "Pipfile", "poetry.lock"]
+        indicators = [
+            "pyproject.toml",
+            "setup.py",
+            "requirements.txt",
+            "Pipfile",
+            "poetry.lock",
+        ]
 
         while current_path != current_path.parent:
             for indicator in indicators:
@@ -297,7 +312,12 @@ class FileRouter(APIRouter):
         """Get the full module name for importing."""
         if project_root:
             relative_path = file_path.relative_to(project_root)
-            module_name = str(relative_path).replace("/", ".").replace("\\", ".").replace(".py", "")
+            module_name = (
+                str(relative_path)
+                .replace("/", ".")
+                .replace("\\", ".")
+                .replace(".py", "")
+            )
             return module_name
         else:
             return file_path.stem

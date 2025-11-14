@@ -2,6 +2,7 @@ class Constants:
     """
     A class to hold constant values for the whole application.
     """
+
     ROUTE_METADATA_ATTR = "__route_metadata__"
     VERSION_METADATA_ATTR = "__version_metadata__"
 

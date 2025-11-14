@@ -4,7 +4,6 @@ from typing import Optional, List, Sequence, Type, Union, Dict, Any, Callable, T
 from fastapi import params
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute, APIRouter
-from fastapi.types import DecoratedCallable
 from fastapi.utils import generate_unique_id
 from semver import Version
 from starlette.responses import JSONResponse
@@ -12,7 +11,6 @@ from starlette.routing import BaseRoute, Match
 from starlette.types import ASGIApp, Scope, Receive, Send, Lifespan
 
 from ..dto import VersionMetadata
-from ..utils import parse_version
 from ...constants import Constants
 from ...exceptions import VersionNotSupportedError
 from ...response import Response
@@ -20,6 +18,7 @@ from ...response import Response
 
 # TODO: Add support for version ranges (e.g., ">=1.0.0,<2.0.0")
 # TODO: Add support for method decorators (e.g., @router.get, @router.post) with versioning
+
 
 class VersionedRoute(APIRoute):
     """
@@ -90,7 +89,9 @@ class VersionedRouter(APIRouter):
         lifespan: Optional[Lifespan[Any]] = None,
         deprecated: Optional[bool] = None,
         include_in_schema: bool = True,
-        generate_unique_id_function: Callable[[APIRoute], str] = Default(generate_unique_id),
+        generate_unique_id_function: Callable[[APIRoute], str] = Default(
+            generate_unique_id
+        ),
     ) -> None:
         super().__init__(
             prefix=prefix,

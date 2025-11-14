@@ -55,7 +55,9 @@ class Repository[T](AppObject):
 
         field = getattr(self.model, field_name)
 
-        return query.where(value.apply(field) if isinstance(value, Filter) else field == value)
+        return query.where(
+            value.apply(field) if isinstance(value, Filter) else field == value
+        )
 
     def _apply_filters(self, query: Any, **filters) -> Any:
         """
@@ -83,8 +85,12 @@ class Repository[T](AppObject):
             result = await self.session.exec(query)
             return result.first()
         except SQLAlchemyError as e:
-            logger.error(f"Error retrieving {self.model.__name__} with id {id}: {str(e)}")
-            raise DatabaseError(f"Error retrieving {self.model.__name__} with id {id}") from e
+            logger.error(
+                f"Error retrieving {self.model.__name__} with id {id}: {str(e)}"
+            )
+            raise DatabaseError(
+                f"Error retrieving {self.model.__name__} with id {id}"
+            ) from e
 
     async def get_or_raise(self, id: UUID) -> T:
         """
@@ -102,7 +108,9 @@ class Repository[T](AppObject):
 
         return entity
 
-    async def all(self, skip: Optional[int] = None, limit: Optional[int] = None, **filters) -> List[T]:
+    async def all(
+        self, skip: Optional[int] = None, limit: Optional[int] = None, **filters
+    ) -> List[T]:
         """
         Retrieves all entities, optionally filtered by provided criteria.
 
@@ -122,7 +130,7 @@ class Repository[T](AppObject):
                      - is_null(): IS NULL
                      - is_not_null(): IS NOT NULL
                      - plain value: equality (default)
-                     
+
                      Example:
                          from authentication.core.base.filters import gt, ilike, in_
                          await repo.all(expires_at=gt(datetime.now()), token=ilike("%abc%"))
@@ -143,8 +151,12 @@ class Repository[T](AppObject):
             result = await self.session.exec(query)
             return cast(List[T], result.all())
         except SQLAlchemyError as e:
-            logger.error(f"Error retrieving all {self.model.__name__} entities: {str(e)}")
-            raise DatabaseError(f"Error retrieving all {self.model.__name__} entities") from e
+            logger.error(
+                f"Error retrieving all {self.model.__name__} entities: {str(e)}"
+            )
+            raise DatabaseError(
+                f"Error retrieving all {self.model.__name__} entities"
+            ) from e
 
     async def create(self, entity: T) -> T:
         """
@@ -189,7 +201,9 @@ class Repository[T](AppObject):
         except SQLAlchemyError as e:
             logger.error(f"Error updating {self.model.__name__} with id {id}: {str(e)}")
             await self.session.rollback()
-            raise DatabaseError(f"Error updating {self.model.__name__} with id {id}") from e
+            raise DatabaseError(
+                f"Error updating {self.model.__name__} with id {id}"
+            ) from e
 
     async def delete(self, id: UUID) -> None:
         """
@@ -206,7 +220,9 @@ class Repository[T](AppObject):
         except SQLAlchemyError as e:
             logger.error(f"Error deleting {self.model.__name__} with id {id}: {str(e)}")
             await self.session.rollback()
-            raise DatabaseError(f"Error deleting {self.model.__name__} with id {id}") from e
+            raise DatabaseError(
+                f"Error deleting {self.model.__name__} with id {id}"
+            ) from e
 
     async def count(self, **filters) -> int:
         """
@@ -243,7 +259,7 @@ class Repository[T](AppObject):
                      - is_null(): IS NULL
                      - is_not_null(): IS NOT NULL
                      - plain value: equality (default)
-                     
+
                      Example:
                          from authentication.core.base.filters import gt, is_not_null
                          await repo.exists(expires_at=gt(datetime.now()), ip_address=is_not_null())
@@ -256,5 +272,9 @@ class Repository[T](AppObject):
             result = await self.session.exec(query)
             return result.first() is not None
         except SQLAlchemyError as e:
-            logger.error(f"Error checking existence of {self.model.__name__} entities: {str(e)}")
-            raise DatabaseError(f"Error checking existence of {self.model.__name__} entities") from e
+            logger.error(
+                f"Error checking existence of {self.model.__name__} entities: {str(e)}"
+            )
+            raise DatabaseError(
+                f"Error checking existence of {self.model.__name__} entities"
+            ) from e

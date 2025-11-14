@@ -17,6 +17,7 @@ from ..routing.utils import parse_version
 
 # TODO: Add support for default api version, latest version, and version negotiation strategies e.g., "latest", "stable", etc.
 
+
 class VersionMiddleware:
     """
     Use this middleware to parse the Accept Header if present and get an API version
@@ -44,11 +45,13 @@ class VersionMiddleware:
             Constants.ACCEPT_HEADER_VERSION_REGEX.format(
                 vendor_prefix=re.escape(vendor_prefix)
             ),
-            re.IGNORECASE
+            re.IGNORECASE,
         )
 
-    async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable):
-        if not scope["type"] in ("http", "websocket"):
+    async def __call__(
+        self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
+    ):
+        if scope["type"] not in ("http", "websocket"):
             return await self.app(scope, receive, send)
 
         scope = cast(Union[HTTPScope, WebSocketScope], scope)
@@ -62,7 +65,9 @@ class VersionMiddleware:
 
             if match:
                 version_str = match.group("version")
-                scope[Constants.REQUESTED_VERSION_SCOPE_KEY] = parse_version(version_str)
+                scope[Constants.REQUESTED_VERSION_SCOPE_KEY] = parse_version(
+                    version_str
+                )
 
         return await self.app(scope, receive, send)
 

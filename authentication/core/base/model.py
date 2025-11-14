@@ -12,15 +12,13 @@ from sqlmodel import SQLModel, Field
 
 class BaseModel(PydanticBaseModel):
     model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True,
-        extra="ignore"
+        alias_generator=to_camel, populate_by_name=True, extra="ignore"
     )
 
     def model_dump(
         self,
         *,
-        mode: Literal['json', 'python'] | str = 'python',
+        mode: Literal["json", "python"] | str = "python",
         include: IncEx | None = None,
         exclude: IncEx | None = None,
         context: Any | None = None,
@@ -30,7 +28,7 @@ class BaseModel(PydanticBaseModel):
         exclude_none: bool = True,
         exclude_computed_fields: bool = False,
         round_trip: bool = False,
-        warnings: bool | Literal['none', 'warn', 'error'] = True,
+        warnings: bool | Literal["none", "warn", "error"] = True,
         fallback: Callable[[Any], Any] | None = None,
         serialize_as_any: bool = False,
     ) -> dict[str, Any]:
@@ -64,7 +62,7 @@ class BaseModel(PydanticBaseModel):
         exclude_none: bool = True,
         exclude_computed_fields: bool = False,
         round_trip: bool = False,
-        warnings: bool | Literal['none', 'warn', 'error'] = True,
+        warnings: bool | Literal["none", "warn", "error"] = True,
         fallback: Callable[[Any], Any] | None = None,
         serialize_as_any: bool = False,
     ) -> str:
@@ -90,15 +88,15 @@ class BaseDBModel(SQLModel, BaseModel):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     created_at: datetime.datetime = Field(
         default_factory=lambda: arrow.utcnow().datetime,
-        sa_column=Column(DateTime(timezone=True))
+        sa_column=Column(DateTime(timezone=True)),
     )
     updated_at: datetime.datetime = Field(
         default_factory=lambda: arrow.utcnow().datetime,
-        sa_column=Column(DateTime(timezone=True), onupdate=lambda: arrow.utcnow().datetime)
+        sa_column=Column(
+            DateTime(timezone=True), onupdate=lambda: arrow.utcnow().datetime
+        ),
     )
 
     model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True,
-        extra="ignore"
+        alias_generator=to_camel, populate_by_name=True, extra="ignore"
     )

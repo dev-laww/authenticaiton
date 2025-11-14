@@ -6,5 +6,5 @@ __all__ = [
     "VersionRegistry",
     "Extractor",
     "DefaultExtractor",
-    "MultiRouterExtractor"
+    "MultiRouterExtractor",
 ]

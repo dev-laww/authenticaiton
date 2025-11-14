@@ -24,10 +24,8 @@ class User(SQLModel, table=True):
     created_at: datetime.datetime = Field(
         default_factory=get_current_utc_datetime,
         sa_column=sa.Column(
-            sa.DateTime(timezone=True),
-            server_default=sa.func.now(),
-            nullable=False
-        )
+            sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
     updated_at: datetime.datetime = Field(
         default_factory=get_current_utc_datetime,
@@ -35,22 +33,20 @@ class User(SQLModel, table=True):
             sa.DateTime(timezone=True),
             server_default=sa.func.now(),
             onupdate=sa.func.now(),
-            nullable=False
-        )
+            nullable=False,
+        ),
     )
 
     roles: List["Role"] = Relationship(
         back_populates="users",
         link_model=UserRole,
-        sa_relationship_kwargs={"lazy": "selectin"}
+        sa_relationship_kwargs={"lazy": "selectin"},
     )
 
     accounts: List["Account"] = Relationship(
-        back_populates="user",
-        sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
     sessions: List["Session"] = Relationship(
-        back_populates="user",
-        sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
     )

@@ -13,5 +13,5 @@ __all__ = [
     "RolePermission",
     "Session",
     "User",
-    "UserRole"
+    "UserRole",
 ]

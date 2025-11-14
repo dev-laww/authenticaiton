@@ -17,6 +17,7 @@ from ..constants import Constants
 
 # TODO: add websocket route support
 
+
 def version(version: Union[str, Version]):  # noqa
     """
     Decorator to specify the version of an API route.
@@ -39,6 +40,7 @@ def version(version: Union[str, Version]):  # noqa
 
 
 _version_decorator = version
+
 
 def route(
     path: str,
@@ -67,7 +69,7 @@ def route(
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     version: Optional[Union[str, Version]] = None,  # noqa
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[DecoratedCallable], DecoratedCallable]:
     def decorator(method: DecoratedCallable) -> DecoratedCallable:
         # Call the version decorator if version is provided so no need for multiple decorators
@@ -98,7 +100,7 @@ def route(
             route_class_override=route_class_override,
             callbacks=callbacks,
             openapi_extra=openapi_extra,
-            **kwargs  # noqa
+            **kwargs,  # noqa
         )
 
         setattr(decorated_method, Constants.ROUTE_METADATA_ATTR, route_metadata)
@@ -132,11 +134,11 @@ def get(
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     version: Optional[str] = None,  # noqa
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[DecoratedCallable], DecoratedCallable]:
     return route(
         path,
-        methods=['GET'],
+        methods=["GET"],
         response_model=response_model,
         status_code=status_code,
         tags=tags,
@@ -159,7 +161,7 @@ def get(
         callbacks=callbacks,
         openapi_extra=openapi_extra,
         version=version,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -188,11 +190,11 @@ def post(
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     version: Optional[str] = None,  # noqa
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[DecoratedCallable], DecoratedCallable]:
     return route(
         path,
-        methods=['POST'],
+        methods=["POST"],
         response_model=response_model,
         status_code=status_code,
         tags=tags,
@@ -215,7 +217,7 @@ def post(
         callbacks=callbacks,
         openapi_extra=openapi_extra,
         version=version,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -244,11 +246,11 @@ def put(
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     version: Optional[str] = None,  # noqa
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[DecoratedCallable], DecoratedCallable]:
     return route(
         path,
-        methods=['PUT'],
+        methods=["PUT"],
         response_model=response_model,
         status_code=status_code,
         tags=tags,
@@ -271,7 +273,7 @@ def put(
         callbacks=callbacks,
         openapi_extra=openapi_extra,
         version=version,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -300,11 +302,11 @@ def patch(
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     version: Optional[str] = None,  # noqa
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[DecoratedCallable], DecoratedCallable]:
     return route(
         path,
-        methods=['PATCH'],
+        methods=["PATCH"],
         response_model=response_model,
         status_code=status_code,
         tags=tags,
@@ -327,7 +329,7 @@ def patch(
         callbacks=callbacks,
         openapi_extra=openapi_extra,
         version=version,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -356,11 +358,11 @@ def delete(
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     version: Optional[str] = None,  # noqa
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[DecoratedCallable], DecoratedCallable]:
     return route(
         path,
-        methods=['DELETE'],
+        methods=["DELETE"],
         response_model=response_model,
         status_code=status_code,
         tags=tags,
@@ -383,7 +385,7 @@ def delete(
         callbacks=callbacks,
         openapi_extra=openapi_extra,
         version=version,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -412,11 +414,11 @@ def head(
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     version: Optional[str] = None,  # noqa
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[DecoratedCallable], DecoratedCallable]:
     return route(
         path,
-        methods=['HEAD'],
+        methods=["HEAD"],
         response_model=response_model,
         status_code=status_code,
         tags=tags,
@@ -439,7 +441,7 @@ def head(
         callbacks=callbacks,
         openapi_extra=openapi_extra,
         version=version,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -468,11 +470,11 @@ def option(
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     version: Optional[str] = None,  # noqa
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[DecoratedCallable], DecoratedCallable]:
     return route(
         path,
-        methods=['OPTION'],
+        methods=["OPTION"],
         response_model=response_model,
         status_code=status_code,
         tags=tags,
@@ -495,7 +497,7 @@ def option(
         callbacks=callbacks,
         openapi_extra=openapi_extra,
         version=version,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -524,11 +526,11 @@ def trace(
     callbacks: Optional[List[BaseRoute]] = None,
     openapi_extra: Optional[Dict[str, Any]] = None,
     version: Optional[str] = None,  # noqa
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[DecoratedCallable], DecoratedCallable]:
     return route(
         path,
-        methods=['TRACE'],
+        methods=["TRACE"],
         response_model=response_model,
         status_code=status_code,
         tags=tags,
@@ -551,5 +553,5 @@ def trace(
         callbacks=callbacks,
         openapi_extra=openapi_extra,
         version=version,
-        **kwargs
+        **kwargs,
     )

@@ -1,5 +1,16 @@
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, Type, List, Sequence, Dict, Union, Set, TypeVar
+from typing import (
+    Any,
+    Callable,
+    Optional,
+    Type,
+    List,
+    Sequence,
+    Dict,
+    Union,
+    Set,
+    TypeVar,
+)
 
 from fastapi import APIRouter
 from fastapi import params
@@ -8,11 +19,11 @@ from fastapi.routing import APIRoute
 from h11 import Response
 from semver import Version
 from starlette.responses import JSONResponse
-from starlette.routing import Route, WebSocketRoute
+from starlette.routing import Route
 
 SetIntStr = Set[Union[int, str]]
 DictIntStrAny = Dict[Union[int, str], Any]
-AnyCallable = TypeVar('AnyCallable', bound=Callable[..., Any])
+AnyCallable = TypeVar("AnyCallable", bound=Callable[..., Any])
 
 
 @dataclass
@@ -31,6 +42,7 @@ class RouterMetadata:
         router: The APIRouter instance
         metadata: Additional metadata about the router (e.g., tags, descriptions, flags)
     """
+
     router: APIRouter
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -42,6 +54,7 @@ class RouteMetadata:
     Just a convenience for type safety, and so we can pass all the args needed by the underlying FastAPI route args via
     `**dataclasses.asdict(some_args)`.
     """
+
     path: str
     response_model: Optional[Type[Any]] = None
     status_code: Optional[int] = None
@@ -61,7 +74,9 @@ class RouteMetadata:
     response_model_exclude_defaults: bool = False
     response_model_exclude_none: bool = False
     include_in_schema: bool = True
-    response_class: Union[Type[Response], DefaultPlaceholder] = field(default_factory=lambda: Default(JSONResponse))
+    response_class: Union[Type[Response], DefaultPlaceholder] = field(
+        default_factory=lambda: Default(JSONResponse)
+    )
     name: Optional[str] = None
     route_class_override: Optional[Type[APIRoute]] = None
     callbacks: Optional[List[Route]] = None

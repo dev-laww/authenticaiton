@@ -17,7 +17,4 @@ def limit(rate: str):
     return limiter.limit(rate)
 
 
-__all__ = [
-    "setup_rate_limiting",
-    "limit"
-]
+__all__ = ["setup_rate_limiting", "limit"]

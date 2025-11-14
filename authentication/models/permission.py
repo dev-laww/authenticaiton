@@ -25,15 +25,15 @@ class Permission(SQLModel, table=True):
 
     id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     resource: str = Field(index=True)
-    action: Action = Field(sa_column=sa.Column(sa.Enum(Action), nullable=False, index=True))
+    action: Action = Field(
+        sa_column=sa.Column(sa.Enum(Action), nullable=False, index=True)
+    )
     description: Optional[str] = Field(default=None)
     created_at: datetime.datetime = Field(
         default_factory=get_current_utc_datetime,
         sa_column=sa.Column(
-            sa.DateTime(timezone=True),
-            server_default=sa.func.now(),
-            nullable=False
-        )
+            sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
     updated_at: datetime.datetime = Field(
         default_factory=get_current_utc_datetime,
@@ -41,14 +41,14 @@ class Permission(SQLModel, table=True):
             sa.DateTime(timezone=True),
             server_default=sa.func.now(),
             onupdate=sa.func.now(),
-            nullable=False
-        )
+            nullable=False,
+        ),
     )
 
     roles: List["Role"] = Relationship(
         back_populates="permissions",
         link_model=RolePermission,
-        sa_relationship_kwargs={"lazy": "selectin"}
+        sa_relationship_kwargs={"lazy": "selectin"},
     )
 
     @property

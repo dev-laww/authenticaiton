@@ -4,4 +4,5 @@ class AppObject:
 
     This class serves as a blueprint for all application objects,
     """
+
     pass

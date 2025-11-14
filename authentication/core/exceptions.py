@@ -123,31 +123,23 @@ def setup_exception_handlers(app: FastAPI):
                 "path": request.url.path,
                 "method": request.method,
                 "code": exc.code,
-                "details": exc.details
+                "details": exc.details,
             },
-            exc_info=exc.status_code >= 500
+            exc_info=exc.status_code >= 500,
         )
 
         response_map: Dict[Type[Exception], Callable[[], Response]] = {
             AuthenticationError: lambda: Response.failure(
-                status=401,
-                message=exc.message,
-                code="AUTH_ERROR"
+                status=401, message=exc.message, code="AUTH_ERROR"
             ),
             AuthorizationError: lambda: Response.failure(
-                status=403,
-                message=exc.message,
-                code="AUTHZ_ERROR"
+                status=403, message=exc.message, code="AUTHZ_ERROR"
             ),
             NotFoundError: lambda: Response.failure(
-                status=404,
-                message=exc.message,
-                code="NOT_FOUND"
+                status=404, message=exc.message, code="NOT_FOUND"
             ),
             ValidationError: lambda: Response.failure(
-                status=400,
-                message=exc.message,
-                code="VALIDATION_ERROR"
+                status=400, message=exc.message, code="VALIDATION_ERROR"
             ),
         }
 
@@ -156,45 +148,37 @@ def setup_exception_handlers(app: FastAPI):
             lambda: Response.failure(
                 status=exc.status_code,
                 message=getattr(exc, "message", str(exc)),
-                code=exc.code
-            )
+                code=exc.code,
+            ),
         )
 
         content = response_builder()
-        return AppResponse(
-            content=content.model_dump(),
-            status_code=exc.status_code
-        )
+        return AppResponse(content=content.model_dump(), status_code=exc.status_code)
 
     @app.exception_handler(StarletteHTTPException)
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         content = Response.failure(
-            status=exc.status_code,
-            message=exc.detail,
-            code="HTTP_ERROR"
+            status=exc.status_code, message=exc.detail, code="HTTP_ERROR"
         )
 
-        return AppResponse(
-            content=content.model_dump(),
-            status_code=exc.status_code
-        )
+        return AppResponse(content=content.model_dump(), status_code=exc.status_code)
 
     @app.exception_handler(HTTPStatus.NOT_FOUND)
     async def not_found_exception_handler(request: Request, exc):
         """Handle 404 Not Found errors."""
 
         content = Response.not_found(
-            message="The requested resource was not found",
-            code="NOT_FOUND"
+            message="The requested resource was not found", code="NOT_FOUND"
         )
 
         return AppResponse(
-            content=content.model_dump(),
-            status_code=HTTPStatus.NOT_FOUND
+            content=content.model_dump(), status_code=HTTPStatus.NOT_FOUND
         )
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ):
         """Handle request validation errors."""
 
         errors = exc.errors()
@@ -203,15 +187,15 @@ def setup_exception_handlers(app: FastAPI):
             extra={
                 "path": request.url.path,
                 "method": request.method,
-                "errors": errors
-            }
+                "errors": errors,
+            },
         )
 
         error_details = [
             {
                 "field": ".".join(str(loc) for loc in err["loc"]),
                 "message": err["msg"],
-                "type": err["type"]
+                "type": err["type"],
             }
             for err in errors
         ]
@@ -219,11 +203,10 @@ def setup_exception_handlers(app: FastAPI):
         content = Response.bad_request(
             message="Validation failed",
             code="VALIDATION_ERROR",
-            data={"errors": error_details}
+            data={"errors": error_details},
         )
         return AppResponse(
-            content=content.model_dump(),
-            status_code=HTTPStatus.BAD_REQUEST
+            content=content.model_dump(), status_code=HTTPStatus.BAD_REQUEST
         )
 
     @app.exception_handler(Exception)
@@ -235,19 +218,18 @@ def setup_exception_handlers(app: FastAPI):
             extra={
                 "path": request.url.path,
                 "method": request.method,
-                "exception_type": type(exc).__name__
-            }
+                "exception_type": type(exc).__name__,
+            },
         )
 
         content = Response.internal_error(
             message="An unexpected error occurred",
             exception=exc,
-            code="INTERNAL_SERVER_ERROR"
+            code="INTERNAL_SERVER_ERROR",
         )
 
         return AppResponse(
-            content=content.model_dump(),
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR
+            content=content.model_dump(), status_code=HTTPStatus.INTERNAL_SERVER_ERROR
         )
 
 
@@ -262,5 +244,5 @@ __all__ = [
     "ConflictError",
     "RateLimitError",
     "VersionNotSupportedError",
-    "setup_exception_handlers"
+    "setup_exception_handlers",
 ]

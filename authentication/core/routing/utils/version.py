@@ -34,7 +34,7 @@ class VersionRegistry(AppObject):
     Singleton registry for managing application versions using semver.
     """
 
-    _instance: Optional['VersionRegistry'] = None
+    _instance: Optional["VersionRegistry"] = None
     _initialized: bool = False
 
     def __new__(cls, *args, **kwargs):
@@ -52,9 +52,7 @@ class VersionRegistry(AppObject):
             self._initialized = True
 
     def add_version(
-        self,
-        version: Union[str, Version],
-        set_default: bool = False
+        self, version: Union[str, Version], set_default: bool = False
     ) -> bool:
         """
         Register a new version.
@@ -164,11 +162,15 @@ class VersionRegistry(AppObject):
         self,
         min_version: Union[str, Version],
         max_version: Union[str, Version],
-        include_deprecated: bool = False
+        include_deprecated: bool = False,
     ) -> List[Version]:
         """Get all versions within a range (inclusive)."""
-        min_ver = parse_version(min_version) if isinstance(min_version, str) else min_version
-        max_ver = parse_version(max_version) if isinstance(max_version, str) else max_version
+        min_ver = (
+            parse_version(min_version) if isinstance(min_version, str) else min_version
+        )
+        max_ver = (
+            parse_version(max_version) if isinstance(max_version, str) else max_version
+        )
 
         versions = self.get_versions(include_deprecated=include_deprecated)
         return [v for v in versions if min_ver <= v <= max_ver]
@@ -196,7 +198,7 @@ class VersionRegistry(AppObject):
         return sorted(self._deprecated_versions)
 
     @classmethod
-    def get_instance(cls) -> 'VersionRegistry':
+    def get_instance(cls) -> "VersionRegistry":
         """Get the singleton instance."""
         if cls._instance is None:
             cls._instance = cls()
