@@ -7,10 +7,10 @@ import asyncio
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
-from semver import Version
 
 from authentication.core.constants import Constants
 from authentication.core.middlewares.version import VersionMiddleware, setup_version_middleware
+from authentication.core.routing.utils import VersionRegistry
 
 
 # Fixtures
@@ -178,21 +178,21 @@ def test_middleware_sets_version_in_scope(app):
     assert data["version"] == "1.2.3"
 
 
-def test_middleware_does_not_set_version_when_no_accept_header(app):
+def test_middleware_sets_to_default_version_when_no_accept_header(app):
     """Middleware does not set version when Accept header is missing."""
     setup_version_middleware(app, vendor_prefix="test")
 
     @app.get("/check-version")
     def check_version(request: Request):
         version = request.scope.get(Constants.REQUESTED_VERSION_SCOPE_KEY)
-        return {"version": version}
+        return {"version": str(version)}
 
     client = TestClient(app)
     response = client.get("/check-version")
 
     assert response.status_code == 200
     data = response.json()
-    assert data["version"] is None
+    assert data["version"] == str(VersionRegistry().default_version)
 
 
 # Test non-HTTP requests

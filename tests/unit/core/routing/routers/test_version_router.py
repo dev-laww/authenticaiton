@@ -14,7 +14,7 @@ from authentication.core.constants import Constants
 from authentication.core.exceptions import VersionNotSupportedError
 from authentication.core.routing.decorators import version
 from authentication.core.routing.routers.version import VersionedRoute, VersionedRouter
-from authentication.core.routing.utils.version import parse_version
+from authentication.core.routing.utils import VersionRegistry
 
 
 # Fixtures
@@ -73,7 +73,7 @@ def test_versioned_route_version_property():
     assert route.version == Version.parse("1.2.3")
 
 
-def test_versioned_route_version_property_none():
+def test_versioned_route_version_property_default():
     """VersionedRoute.version returns None when no version."""
     router = VersionedRouter()
 
@@ -82,7 +82,7 @@ def test_versioned_route_version_property_none():
         return {"message": "test"}
 
     route = router.routes[0]
-    assert route.version is None
+    assert route.version == VersionRegistry().default_version
 
 
 # Test VersionedRoute.is_requested_version_matches
@@ -138,7 +138,7 @@ def test_is_requested_version_matches_no_requested_version():
 
 
 def test_is_requested_version_matches_no_route_version():
-    """is_requested_version_matches returns False when route has no version."""
+    """is_requested_version_matches returns True when route has no version."""
     router = VersionedRouter()
 
     @router.get("/test")
@@ -151,7 +151,7 @@ def test_is_requested_version_matches_no_route_version():
         Constants.REQUESTED_VERSION_SCOPE_KEY: Version.parse("1.0.0")
     }
 
-    assert route.is_requested_version_matches(scope) is False
+    assert route.is_requested_version_matches(scope) is True
 
 
 # Test VersionedRoute.matches
@@ -320,5 +320,5 @@ def test_route_without_version():
         return {"message": "test"}
 
     route = router.routes[0]
-    assert route.version is None
-
+    assert route.version is not None
+    assert route.version == VersionRegistry().default_version
